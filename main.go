@@ -21,6 +21,7 @@ func main() {
 
 	router.PUT("/", noteHandlers.CreateNote)
 	router.GET("/:id", noteHandlers.GetNote)
+	router.DELETE("/:id", noteHandlers.DeleteNote)
 
 	router.Run(":8080")
 }

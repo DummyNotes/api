@@ -78,11 +78,24 @@ func (c *DynamoDBClient) Get(id string) (interface{}, error) {
 	return note, nil
 }
 
-//
-//func (c *DynamoDBClient) Update(id interface{}, entity interface{}) (bool, error) {
-//	// Implementation of updating an item in DynamoDB
-//}
-//
-//func (c *DynamoDBClient) Delete(id interface{}) (bool, error) {
-//	// Implementation of deleting an item from DynamoDB
-//}
+//	func (c *DynamoDBClient) Update(id interface{}, entity interface{}) (bool, error) {
+//		// Implementation of updating an item in DynamoDB
+//	}
+func (c *DynamoDBClient) Delete(id string) (bool, error) {
+	selectedKeys := map[string]string{
+		"NoteId": id,
+	}
+
+	key, _ := attributevalue.MarshalMap(selectedKeys)
+
+	_, err := c.db.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
+		TableName: aws.String("Notes"),
+		Key:       key,
+	})
+
+	if err != nil {
+		return false, fmt.Errorf("DeleteItem: %v\n", err)
+	}
+
+	return true, nil
+}

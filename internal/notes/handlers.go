@@ -36,7 +36,7 @@ func (h *Handlers) CreateNote(c *gin.Context) {
 		return
 	}
 
-	timeNow := time.Now().Format(time.RFC3339)
+	timeNow := time.Now().UTC().Format(time.RFC3339)
 
 	note := &models.Note{
 		NoteId:    uuid.New().String(),
@@ -49,7 +49,7 @@ func (h *Handlers) CreateNote(c *gin.Context) {
 
 	_, err := h.dbClient.Create(note)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -70,4 +70,16 @@ func (h *Handlers) GetNote(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"note": response})
+}
+
+func (h *Handlers) DeleteNote(c *gin.Context) {
+	id := c.Param("id")
+
+	_, err := h.dbClient.Delete(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
