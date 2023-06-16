@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/tiborhercz/notes/internal/config"
@@ -18,6 +20,10 @@ func main() {
 
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	router.GET("/health", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
 
 	router.PUT("/", noteHandlers.CreateNote)
 	router.GET("/:id", noteHandlers.GetNote)
