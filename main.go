@@ -25,9 +25,11 @@ func main() {
 		c.Status(http.StatusOK)
 	})
 
-	router.PUT("/", noteHandlers.CreateNote)
-	router.GET("/:id", noteHandlers.GetNote)
-	router.DELETE("/:id", noteHandlers.DeleteNote)
+	notesGroup := router.Group("/notes")
+
+	notesGroup.PUT("/", noteHandlers.CreateNote)
+	notesGroup.GET("/:id", noteHandlers.GetNote)
+	notesGroup.DELETE("/:id", noteHandlers.DeleteNote)
 
 	router.Run(":8080")
 }
