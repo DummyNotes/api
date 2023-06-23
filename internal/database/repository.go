@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/tiborhercz/notes/internal/models"
+	"github.com/dummynotes/notes/internal/models"
 )
 
 type DynamoDBClient struct {
@@ -68,6 +68,10 @@ func (c *DynamoDBClient) Get(id string) (interface{}, error) {
 
 	if err != nil {
 		return note, fmt.Errorf("GetItem: %v\n", err)
+	}
+
+	if data.Item == nil {
+		return note, fmt.Errorf("GetItem: Data not found.\n")
 	}
 
 	err = attributevalue.UnmarshalMap(data.Item, &note)

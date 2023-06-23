@@ -1,23 +1,23 @@
-package notes
+package handlers
 
 import (
 	"net/http"
 	"time"
 
+	"github.com/dummynotes/notes/internal/config"
+	"github.com/dummynotes/notes/internal/database"
+	"github.com/dummynotes/notes/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/tiborhercz/notes/internal/config"
-	"github.com/tiborhercz/notes/internal/database"
-	"github.com/tiborhercz/notes/internal/models"
 )
 
-type Handlers struct {
+type NotesHandlers struct {
 	envConfig *config.EnvConfigStruct
 	dbClient  *database.DynamoDBClient
 }
 
-func NewAPIHandlers(client *database.DynamoDBClient, envConfig *config.EnvConfigStruct) *Handlers {
-	return &Handlers{
+func NewNotesAPIHandlers(client *database.DynamoDBClient, envConfig *config.EnvConfigStruct) *NotesHandlers {
+	return &NotesHandlers{
 		dbClient:  client,
 		envConfig: envConfig,
 	}
@@ -28,7 +28,7 @@ type CreateNoteRequestBody struct {
 	Text  string `json:"Text" binding:"required"`
 }
 
-func (h *Handlers) CreateNote(c *gin.Context) {
+func (h *NotesHandlers) CreateNote(c *gin.Context) {
 	body := CreateNoteRequestBody{}
 
 	if err := c.BindJSON(&body); err != nil {
@@ -56,23 +56,24 @@ func (h *Handlers) CreateNote(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-type GetNoteRequestBody struct {
-	NoteId string `json:"NoteId" binding:"required"`
-}
-
-func (h *Handlers) GetNote(c *gin.Context) {
+func (h *NotesHandlers) GetNote(c *gin.Context) {
 	id := c.Param("id")
 
 	response, err := h.dbClient.Get(id)
+	if err.Error() == "GetItem: Data not found." {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"note": response})
+	c.JSON(http.StatusOK, gin.H{"note": response})
 }
 
-func (h *Handlers) DeleteNote(c *gin.Context) {
+func (h *NotesHandlers) DeleteNote(c *gin.Context) {
 	id := c.Param("id")
 
 	_, err := h.dbClient.Delete(id)

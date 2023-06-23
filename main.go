@@ -3,11 +3,11 @@ package main
 import (
 	"net/http"
 
+	"github.com/dummynotes/notes/internal/config"
+	"github.com/dummynotes/notes/internal/database"
+	"github.com/dummynotes/notes/internal/handlers"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"github.com/tiborhercz/notes/internal/config"
-	"github.com/tiborhercz/notes/internal/database"
-	"github.com/tiborhercz/notes/internal/notes"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 
 	client.Configure(database.GetDynamodbClient(envConfig.Region))
 
-	noteHandlers := notes.NewAPIHandlers(&client, envConfig)
+	noteHandlers := handlers.NewNotesAPIHandlers(&client, envConfig)
 
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
