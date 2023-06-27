@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/dummynotes/notes/internal/config"
@@ -26,6 +27,14 @@ func main() {
 	})
 
 	notesGroup := router.Group("/notes")
+
+	notesGroup.GET("/logheaders", func(c *gin.Context) {
+		for k, v := range c.Request.Header {
+			log.Printf("%s: %v", k, v)
+		}
+
+		c.Status(200)
+	})
 
 	notesGroup.PUT("/", noteHandlers.CreateNote)
 	notesGroup.GET("/:id", noteHandlers.GetNote)
