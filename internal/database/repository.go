@@ -3,17 +3,19 @@ package database
 import (
 	"context"
 	"fmt"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/dummynotes/notes/internal/models"
 )
 
 type DynamoDBClient struct {
 	db *dynamodb.Client
 }
+
+const tablename = "Notes"
 
 func GetDynamodbClient(region string) *dynamodb.Client {
 	awsConfig, err := config.LoadDefaultConfig(context.TODO())
@@ -37,7 +39,7 @@ func (c *DynamoDBClient) Create(entity interface{}) (interface{}, error) {
 	}
 
 	item, err := c.db.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String("Notes"),
+		TableName: aws.String(tablename),
 		Item:      av,
 	})
 	if err != nil {
@@ -47,11 +49,22 @@ func (c *DynamoDBClient) Create(entity interface{}) (interface{}, error) {
 	return item, nil
 }
 
-//	func (c *DynamoDBClient) List() (interface{}, error) {
-//		// Implementation of listing items in DynamoDB
-//
-// c.JSON(http.StatusCreated, gin.H{"notes": []interface{}{note}})
-// }
+func (c *DynamoDBClient) List(userId string) (interface{}, error) {
+	items, err := c.db.Query(context.TODO(), &dynamodb.QueryInput{
+		TableName:              aws.String(tablename),
+		IndexName:              aws.String("NoteIdUserIdIndex"),
+		KeyConditionExpression: aws.String("UserId = :gsi1pk"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":gsi1pk": &types.AttributeValueMemberS{Value: userId},
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("ListItems: %v\n", err)
+	}
+
+	return items, nil
+}
+
 func (c *DynamoDBClient) Get(id string) (interface{}, error) {
 	note := models.Note{}
 
@@ -62,7 +75,7 @@ func (c *DynamoDBClient) Get(id string) (interface{}, error) {
 	key, _ := attributevalue.MarshalMap(selectedKeys)
 
 	data, err := c.db.GetItem(context.TODO(), &dynamodb.GetItemInput{
-		TableName: aws.String("Notes"),
+		TableName: aws.String(tablename),
 		Key:       key,
 	})
 
@@ -71,7 +84,7 @@ func (c *DynamoDBClient) Get(id string) (interface{}, error) {
 	}
 
 	if data.Item == nil {
-		return note, fmt.Errorf("GetItem: Data not found.\n")
+		return nil, nil
 	}
 
 	err = attributevalue.UnmarshalMap(data.Item, &note)
@@ -93,7 +106,7 @@ func (c *DynamoDBClient) Delete(id string) (bool, error) {
 	key, _ := attributevalue.MarshalMap(selectedKeys)
 
 	_, err := c.db.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
-		TableName: aws.String("Notes"),
+		TableName: aws.String(tablename),
 		Key:       key,
 	})
 

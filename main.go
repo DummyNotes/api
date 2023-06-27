@@ -37,6 +37,7 @@ func main() {
 	})
 
 	notesGroup.PUT("/", noteHandlers.CreateNote)
+	notesGroup.GET("/", noteHandlers.ListNote)
 	notesGroup.GET("/:id", noteHandlers.GetNote)
 	notesGroup.DELETE("/:id", noteHandlers.DeleteNote)
 

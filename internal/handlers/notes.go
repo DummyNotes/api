@@ -31,6 +31,8 @@ type CreateNoteRequestBody struct {
 func (h *NotesHandlers) CreateNote(c *gin.Context) {
 	body := CreateNoteRequestBody{}
 
+	userId := c.GetHeader("UserID")
+
 	if err := c.BindJSON(&body); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -40,7 +42,7 @@ func (h *NotesHandlers) CreateNote(c *gin.Context) {
 
 	note := &models.Note{
 		NoteId:    uuid.New().String(),
-		UserId:    uuid.New().String(),
+		UserId:    userId,
 		Title:     body.Title,
 		Text:      body.Text,
 		CreatedAt: timeNow,
@@ -60,7 +62,7 @@ func (h *NotesHandlers) GetNote(c *gin.Context) {
 	id := c.Param("id")
 
 	response, err := h.dbClient.Get(id)
-	if err.Error() == "GetItem: Data not found." {
+	if response == nil {
 		c.Status(http.StatusNotFound)
 		return
 	}
@@ -71,6 +73,19 @@ func (h *NotesHandlers) GetNote(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"note": response})
+}
+
+func (h *NotesHandlers) ListNote(c *gin.Context) {
+	userId := c.GetHeader("UserID")
+
+	response, err := h.dbClient.List(userId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"notes": response})
 }
 
 func (h *NotesHandlers) DeleteNote(c *gin.Context) {
