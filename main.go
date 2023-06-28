@@ -7,6 +7,7 @@ import (
 	"github.com/dummynotes/notes/internal/config"
 	"github.com/dummynotes/notes/internal/database"
 	"github.com/dummynotes/notes/internal/handlers"
+	"github.com/dummynotes/notes/internal/middleware"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,7 @@ func main() {
 
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
+	router.Use(middleware.ExtractPayload())
 
 	router.GET("/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)

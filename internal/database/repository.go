@@ -69,7 +69,7 @@ func (c *DynamoDBClient) Get(id string) (interface{}, error) {
 	note := models.Note{}
 
 	selectedKeys := map[string]string{
-		"NoteId": id,
+		"NoteID": id,
 	}
 
 	key, _ := attributevalue.MarshalMap(selectedKeys)
@@ -100,7 +100,7 @@ func (c *DynamoDBClient) Get(id string) (interface{}, error) {
 //	}
 func (c *DynamoDBClient) Delete(id string) (bool, error) {
 	selectedKeys := map[string]string{
-		"NoteId": id,
+		"NoteID": id,
 	}
 
 	key, _ := attributevalue.MarshalMap(selectedKeys)

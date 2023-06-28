@@ -31,7 +31,9 @@ type CreateNoteRequestBody struct {
 func (h *NotesHandlers) CreateNote(c *gin.Context) {
 	body := CreateNoteRequestBody{}
 
-	userId := c.GetHeader("UserID")
+	user, _ := c.Get("user")
+
+	userId := user.(*models.User).UserID
 
 	if err := c.BindJSON(&body); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -76,7 +78,9 @@ func (h *NotesHandlers) GetNote(c *gin.Context) {
 }
 
 func (h *NotesHandlers) ListNote(c *gin.Context) {
-	userId := c.GetHeader("UserID")
+	user, _ := c.Get("user")
+
+	userId := user.(*models.User).UserID
 
 	response, err := h.dbClient.List(userId)
 

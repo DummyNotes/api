@@ -8,3 +8,7 @@ type Note struct {
 	CreatedAt string `json:"CreatedAt"`
 	UpdatedAt string `json:"UpdatedAt"`
 }
+
+type User struct {
+	UserID string
+}
