@@ -84,7 +84,7 @@ func (h *NotesHandlers) GetNote(c *gin.Context) {
 func (h *NotesHandlers) ListNote(c *gin.Context) {
 	user, _ := c.Get("user")
 
-	userId := user.(*models.User).UserID
+	userId := user.(*models.User).UserId
 
 	response, err := h.dbClient.List(userId)
 
