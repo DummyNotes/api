@@ -13,6 +13,8 @@ func ExtractPayload() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &models.User{}
 
+		fmt.Println(c.GetHeader("Authorization"))
+
 		token, _, err := new(jwt.Parser).ParseUnverified(c.GetHeader("Authorization"), jwt.MapClaims{})
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Something went wrong"})
@@ -20,10 +22,10 @@ func ExtractPayload() gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			user.UserID = fmt.Sprint(claims["userid"])
+			user.UserId = fmt.Sprint(claims["userid"])
 		}
 
-		if user.UserID == "" {
+		if user.UserId == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Something went wrong"})
 			return
 		}

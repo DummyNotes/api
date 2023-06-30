@@ -10,5 +10,5 @@ type Note struct {
 }
 
 type User struct {
-	UserID string
+	UserId string
 }

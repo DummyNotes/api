@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -33,7 +34,10 @@ func (h *NotesHandlers) CreateNote(c *gin.Context) {
 
 	user, _ := c.Get("user")
 
-	userId := user.(*models.User).UserID
+	userId := user.(*models.User).UserId
+
+	fmt.Println(user)
+	fmt.Println(userId)
 
 	if err := c.BindJSON(&body); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
