@@ -43,6 +43,7 @@ func (c *DynamoDBClient) Create(entity interface{}) (interface{}, error) {
 		Item:      av,
 	})
 	if err != nil {
+		fmt.Errorf("entity: ", entity)
 		return nil, fmt.Errorf("PutItem: %v\n", err)
 	}
 
@@ -69,7 +70,7 @@ func (c *DynamoDBClient) Get(id string) (interface{}, error) {
 	note := models.Note{}
 
 	selectedKeys := map[string]string{
-		"NoteID": id,
+		"NoteId": id,
 	}
 
 	key, _ := attributevalue.MarshalMap(selectedKeys)
